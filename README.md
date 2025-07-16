@@ -25,3 +25,10 @@ This project is a Streamlit web application that predicts the forest cover type 
 ├── scaler.pkl # StandardScaler for input
 ├── requirements.txt # Python packages
 └── README.md # Project info
+
+---
+
+## 🚀 Live Demo
+🔗 [Click here to try the app](https://forest-cover-type-predictor-m11.streamlit.app/)
+
+---
