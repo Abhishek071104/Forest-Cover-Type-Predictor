@@ -66,40 +66,47 @@ with tab1:
         soil_type = st.selectbox("🧱 Soil Type (0–39)", list(range(40)))
 
     if st.button("🌲 Predict Cover Type"):
-        # Build the feature vector
+        # Build the numeric feature vector (10 features)
         input_data = [elevation, aspect, slope, hd_hydro, vd_hydro,
                       hd_road, hillshade_9am, hillshade_noon, hillshade_3pm,
                       hd_fire]
 
-        # One-hot encode wilderness and soil type
+        # One-hot encode wilderness area (4 binary features)
         wilderness_cols = [1 if i == wilderness_area else 0 for i in range(4)]
+
+        # One-hot encode soil type (40 binary features)
         soil_cols = [1 if i == soil_type else 0 for i in range(40)]
 
-        # Final input
+        # Final input (10 + 4 + 40 = 54)
         final_input = np.array(input_data + wilderness_cols + soil_cols).reshape(1, -1)
-        scaled_input = scaler.transform(final_input)
 
-        # Progress bar
-        progress_text = "Predicting forest cover type..."
-        my_bar = st.progress(0, text=progress_text)
-        for percent_complete in range(100):
-            time.sleep(0.008)
-            my_bar.progress(percent_complete + 1, text=progress_text)
+        # Safety check (can be commented out in production)
+        if final_input.shape[1] != 54:
+            st.error(f"Feature mismatch: expected 54 features, got {final_input.shape[1]}")
+        else:
+            scaled_input = scaler.transform(final_input)
 
-        prediction = model.predict(scaled_input)[0]
-        label = cover_mapping[prediction]
+            # Progress bar
+            progress_text = "Predicting forest cover type..."
+            my_bar = st.progress(0, text=progress_text)
+            for percent_complete in range(100):
+                time.sleep(0.008)
+                my_bar.progress(percent_complete + 1, text=progress_text)
 
-        st.success(f"🌳 Predicted Forest Cover Type: **{label}** (Class {prediction})")
+            prediction = model.predict(scaled_input)[0]
+            label = cover_mapping[prediction]
 
-        # Save to history
-        st.session_state.history.append({
-            "Elevation": elevation,
-            "Slope": slope,
-            "Aspect": aspect,
-            "Wilderness": wilderness_area,
-            "Soil Type": soil_type,
-            "Prediction": label
-        })
+            st.success(f"🌳 Predicted Forest Cover Type: **{label}** (Class {prediction})")
+
+            # Save to history
+            st.session_state.history.append({
+                "Elevation": elevation,
+                "Slope": slope,
+                "Aspect": aspect,
+                "Wilderness": wilderness_area,
+                "Soil Type": soil_type,
+                "Prediction": label
+            })
 
 with tab2:
     st.subheader("📜 Prediction History")
@@ -114,5 +121,5 @@ with tab2:
             st.session_state.history = []
             st.success("History cleared!")
 
-# Optional banner
+# Optional banner image
 st.image("forestcover.jpg", use_container_width=True)
