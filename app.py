@@ -115,4 +115,4 @@ with tab2:
             st.success("History cleared!")
 
 # Optional banner
-st.image("forest_banner.jpg", use_container_width=True)
+st.image("forestcover.jpg", use_container_width=True)
